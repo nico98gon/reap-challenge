@@ -6,7 +6,10 @@
     POSTGRES_USER=
     POSTGRES_PASSWORD=
     DATABASE_URL="postgresql://<POSTGRES_USER>:<POSTGRES_PASSWORD>@postgres:5432/reap-challenge?schema=public"
+
     NODE_ENV=local # This represent the enviroment you are going to run the backend
+    PORT=
+
     PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK=true # This allow run migrations in docker
 
   - Create a DB:

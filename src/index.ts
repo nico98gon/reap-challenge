@@ -1,62 +1,21 @@
-import express from "express"
-import { PrismaClient } from "@prisma/client"
-import cors from "cors"
+import createApp from "./app"
+import prisma from "./config/prismaClient"
 
-import organizationsRoutes from "./routes/organizations.routes"
-import usersRoutes from "./routes/users.routes"
-import facilitiesRoutes from "./routes/facilities.routes"
-import pccConfigurationsRoutes from "./routes/pccConfigurations.routes"
-import { errorHandler } from "./middlewares/errorHandler"
+const app = createApp()
 
-const prisma = new PrismaClient()
-
-const app = express()
-
-if (process.env.NODE_ENV === "local") {
-  const corsOptions = {
-    origin: "*",
-    methods: "GET,POST,PUT,DELETE",
-    allowedHeaders: "Content-Type",
-  }
-
-  app.use(cors(corsOptions))
-
-} else if (process.env.NODE_ENV === "production") {
-  const corsOptions = {
-    origin: "https://yourdomain.com",
-    methods: "GET,POST,PUT,DELETE",
-    allowedHeaders: "Content-Type",
-  }
-
-  app.use(cors(corsOptions))
-
-} else if (process.env.NODE_ENV === "testing") {
-  const corsOptions = {
-    origin: "*",
-    methods: "GET,POST,PUT,DELETE",
-    allowedHeaders: "Content-Type",
-  }
-  app.use(cors(corsOptions))
-}
-
-app.use(express.json())
-
-const api = "/api/v1"
-app.use(api, organizationsRoutes)
-app.use(api, usersRoutes)
-app.use(api, facilitiesRoutes)
-app.use(api, pccConfigurationsRoutes)
-
-app.use(errorHandler)
+const PORT = process.env.PORT || 4000
 
 async function main() {
-  app.listen(4000, () => {
-    console.log("Server listening on port 4000")
+  app.listen(PORT, () => {
+    console.log(`Server listening on port ${PORT}`)
   })
 
-  // DB connection
-  const organizations = await prisma.organization.findMany()
-  console.log("Organizations: ", organizations)
+  try {
+    const organizations = await prisma.organization.findMany()
+    console.log("Organizations: ", organizations)
+  } catch (error) {
+    console.error("Error connecting to the database:", error)
+  }
 }
 
 main()

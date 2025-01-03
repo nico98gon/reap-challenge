@@ -71,7 +71,6 @@ async function main() {
     },
   })
 
-  // Create Users with Facility Associations
   const userAlice = await prisma.user.create({
     data: {
       email: "alice.smith@techcorp.com",
