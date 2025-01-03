@@ -6,6 +6,7 @@
     POSTGRES_USER=
     POSTGRES_PASSWORD=
     DATABASE_URL="postgresql://<POSTGRES_USER>:<POSTGRES_PASSWORD>@postgres:5432/reap-challenge?schema=public"
+    NODE_ENV=local # This represent the enviroment you are going to run the backend
     PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK=true # This allow run migrations in docker
 
   - Create a DB:
@@ -30,9 +31,19 @@
     - Generate the Prisma client: `npx prisma generate`
     - Migrate: `npx prisma migrate dev`
 
+## Run prisma studio
+
+
+
+
 ### useful commands:
   - Create a migration with prisma: `npx prisma migrate dev --name init`
   - Build docker with version: `docker compose build -t reap-challenge:<version> .`
+  - Run the app with docker: `docker compose up --build`
   - Connect to Postgres DB terminal: `docker exec -it postgres_db psql -U nicogon -d reap_challenge`
   - Connect to Backend terminal: `docker exec -it backend bash`
   - Run the app: `npx ts-node src/index.ts`
+
+### useful links
+
+  - Postman team: https://app.getpostman.com/join-team?invite_code=0389ba1a43d2d0e65ee37582f0952a7a82fe604f17aa487839a8647ecba08845
