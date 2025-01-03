@@ -6,6 +6,7 @@ import organizationsRoutes from "./routes/organizations.routes"
 import usersRoutes from "./routes/users.routes"
 import facilitiesRoutes from "./routes/facilities.routes"
 import pccConfigurationsRoutes from "./routes/pccConfigurations.routes"
+import { errorHandler } from "./middlewares/errorHandler"
 
 const prisma = new PrismaClient()
 
@@ -45,6 +46,8 @@ app.use(api, organizationsRoutes)
 app.use(api, usersRoutes)
 app.use(api, facilitiesRoutes)
 app.use(api, pccConfigurationsRoutes)
+
+app.use(errorHandler)
 
 async function main() {
   app.listen(4000, () => {

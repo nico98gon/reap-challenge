@@ -1,5 +1,8 @@
 import { Router, Request, Response } from "express"
 import { PrismaClient } from "@prisma/client"
+import { z } from "zod"
+
+import { createOrganizationSchema, idSchema, updateOrganizationSchema } from "../validation/organization.validation"
 
 const router = Router()
 const prisma = new PrismaClient()
@@ -63,28 +66,15 @@ router.get("/organizations-with-facilities", async(req: Request, res: Response) 
 
 // Create a new organization
 // @ts-ignore
-router.post("/organizations", async(req: Request, res: Response) => {
-  const { name, facilities } = req.body
-
-  if (!name || !facilities || facilities.length === 0) {
-    return res
-      .status(400)
-      .json({ error: "Name and at least one facility are required" })
-  }
-
-  const facilitiesValid = facilities.every((facility: { name: string }) => facility.name)
-  if (!facilitiesValid) {
-    return res
-      .status(400)
-      .json({ error: "Each facility must have a name" })
-  }
-
+router.post("/organizations", async (req: Request, res: Response) => {
   try {
+    const validatedData = createOrganizationSchema.parse(req.body)
+
     const newOrganization = await prisma.organization.create({
       data: {
-        name,
+        name: validatedData.name,
         facilities: {
-          create: facilities,
+          create: validatedData.facilities,
         },
       },
       include: {
@@ -94,32 +84,32 @@ router.post("/organizations", async(req: Request, res: Response) => {
 
     res.status(201).json(newOrganization)
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        error: "Validation error",
+        details: error.errors,
+      })
+    }
     console.error(error)
-    res.status(500).json({ error: "Error to create organization" })
+    res.status(500).json({ error: "Error creating organization" })
   }
 })
 
 // Update an organization
 // @ts-ignore
-router.put("/organizations/:id", async(req: Request, res: Response) => {
-  const { id } = req.params
-  const { name, facilities } = req.body
-
-  if (!name && !facilities) {
-    return res
-      .status(400)
-      .json({ error: "Name or facilities are required to update" })
-  }
-
+router.put("/organizations/:id", async (req: Request, res: Response) => {
   try {
+    const id = idSchema.parse(req.params.id)
+    const validatedData = updateOrganizationSchema.parse(req.body)
+
     const updatedOrganization = await prisma.organization.update({
       where: { id: Number(id) },
       data: {
-        ...(name && { name }), // Update name if provided
-        ...(facilities && {
+        ...(validatedData.name && { name: validatedData.name }),
+        ...(validatedData.facilities && {
           facilities: {
-            deleteMany: {}, // Clear existing facilities
-            create: facilities,
+            deleteMany: {},
+            create: validatedData.facilities,
           },
         }),
       },
@@ -130,10 +120,14 @@ router.put("/organizations/:id", async(req: Request, res: Response) => {
 
     res.json(updatedOrganization)
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: error.errors })
+    }
     console.error(error)
-    res.status(500).json({ error: "Error to update organization" })
+    res.status(500).json({ error: "Error updating organization" })
   }
 })
+
 
 // Delete an organization
 router.delete("/organizations/:id", async (req: Request, res: Response) => {

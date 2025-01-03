@@ -10,6 +10,9 @@
     "format": "prettier --write .",
     "lint:fix": "eslint . --fix"
   },
+  "prisma": {
+    "seed": "ts-node --require tsconfig-paths/register seed.ts"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -21,6 +24,8 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "prettier": "^3.4.2",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.2"
   },
   "dependencies": {
@@ -28,6 +33,6 @@
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "prisma": "^6.1.0",
-    "ts-node": "^10.9.2"
+    "zod": "^3.24.1"
   }
 }

@@ -31,10 +31,17 @@
     - Generate the Prisma client: `npx prisma generate`
     - Migrate: `npx prisma migrate dev`
 
-## Run prisma studio
+### Run the seed script
 
+This will create a data example in the DB
 
+  - Run the sript: `npx prisma db seed`
 
+Remember that you should have docker DB and backend running to execute this command
+
+### Run prisma studio
+
+  - Run prisma studio: `npx prisma studio`
 
 ### useful commands:
   - Create a migration with prisma: `npx prisma migrate dev --name init`
