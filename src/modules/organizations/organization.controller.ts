@@ -63,11 +63,25 @@ export const updateOrganization = async (req: Request, res: Response) => {
     const updatedOrganization = await updateOrganizationService(Number(id), validatedData)
 
     res.json(updatedOrganization)
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: "Validation error", details: error.errors })
     }
-    console.error(error)
+
+    if (error.message === 'Organization not found') {
+      return res.status(404).json({ error: "Organization not found" })
+    }
+
+    console.error("Update Organization Error:", error)
+
+    if (error.code === 'P2025') {
+      return res.status(404).json({ error: "Organization not found" })
+    }
+
+    if (error.code === 'P2002') {
+      return res.status(409).json({ error: "Conflict: Duplicate field value violates unique constraint" })
+    }
+
     res.status(500).json({ error: "Error updating organization" })
   }
 }

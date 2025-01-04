@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
 
 import { createOrganizationSchema } from "./organization.validation"
 import prisma from "../../config/prismaClient"
@@ -21,13 +22,22 @@ export const getOrganizationsWithFacilitiesService = async (page: number) => {
       take: limit,
       include: {
         facilities: true,
+        pccConfig: true,
       },
     }),
     prisma.organization.count(),
   ])
 
+  const formattedOrganizations = organizations.map((org) => ({
+    id: org.id,
+    name: org.name,
+    facilities: org.facilities,
+    pcc_org_id: org.pccConfig?.pcc_org_id || null,
+    pcc_org_uuid: org.pccConfig?.pcc_org_uuid || null,
+  }))
+
   return {
-    data: organizations,
+    data: formattedOrganizations,
     currentPage: page,
     totalPages: Math.ceil(totalOrganizations / limit),
     totalOrganizations,
@@ -35,37 +45,80 @@ export const getOrganizationsWithFacilitiesService = async (page: number) => {
 }
 
 
-export const createOrganizationService = async (validatedData: z.infer<typeof createOrganizationSchema>) => {
-  return await prisma.organization.create({
-    data: {
-      name: validatedData.name,
-      facilities: {
-        create: validatedData.facilities,
+export const createOrganizationService = async (
+  validatedData: z.infer<typeof createOrganizationSchema>
+) => {
+  try {
+    return await prisma.organization.create({
+      data: {
+        name: validatedData.name,
+        facilities: {
+          create: validatedData.facilities,
+        },
+        pccConfig: {
+          create: {
+            pcc_org_id: validatedData.pcc_org_id,
+            pcc_org_uuid: validatedData.pcc_org_uuid,
+          },
+        },
       },
-    },
-    include: {
-      facilities: true,
-    },
-  })
+      include: {
+        facilities: true,
+        pccConfig: true,
+      },
+    })
+  } catch (error: any) {
+    if (
+      error instanceof PrismaClientKnownRequestError &&
+      error.code === 'P2002'
+    ) {
+      throw new Error('An organization with this name already exists.')
+    }
+    console.error('Error creating organization:', error)
+    throw error
+  }
 }
 
 export const updateOrganizationService = async (id: number, validatedData: any) => {
-  return await prisma.organization.update({
-    where: { id },
-    data: {
-      ...(validatedData.name && { name: validatedData.name }),
-      ...(validatedData.facilities && {
-        facilities: {
-          deleteMany: {},
-          create: validatedData.facilities,
-        },
-      }),
-    },
-    include: {
-      facilities: true,
-    },
-  })
+  try {
+    return await prisma.organization.update({
+      where: { id },
+      data: {
+        ...(validatedData.name && { name: validatedData.name }),
+        ...(validatedData.facilities && {
+          facilities: {
+            deleteMany: {},
+            create: validatedData.facilities,
+          },
+        }),
+        ...(validatedData.pcc_org_id && validatedData.pcc_org_uuid && {
+          pccConfig: {
+            upsert: {
+              where: { organizationId: id },
+              update: {
+                pcc_org_id: validatedData.pcc_org_id,
+                pcc_org_uuid: validatedData.pcc_org_uuid,
+              },
+              create: {
+                organizationId: id,
+                pcc_org_id: validatedData.pcc_org_id,
+                pcc_org_uuid: validatedData.pcc_org_uuid,
+              },
+            },
+          },
+        }),
+      },
+      include: {
+        facilities: true,
+        pccConfig: true,
+      },
+    })
+  } catch (error: any) {
+    console.error("Error updating organization:", error)
+    throw error
+  }
 }
+
 
 export const deleteOrganizationService = async (organizationId: number) => {
   await prisma.facility.deleteMany({
