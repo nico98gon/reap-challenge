@@ -2,9 +2,9 @@ import express from "express"
 import cors from "cors"
 
 import organizationsRoutes from "./modules/organizations/organization.routes"
-// import usersRoutes from "./modules/users/users.routes"
-// import facilitiesRoutes from "./modules/facilities/facilities.routes"
-// import pccConfigurationsRoutes from "./modules/pccConfigurations/pccConfigurations.routes"
+import usersRoutes from "./modules/users/user.routes"
+import facilitiesRoutes from "./modules/facilities/facility.routes"
+import pccConfigurationsRoutes from "./modules/pccConfigurations/pccConfiguration.routes"
 import { errorHandler } from "./middlewares/errorHandler"
 
 const createApp = () => {
@@ -27,9 +27,9 @@ const createApp = () => {
 
   const api = "/api/v1"
   app.use(api, organizationsRoutes)
-  // app.use(api, usersRoutes)
-  // app.use(api, facilitiesRoutes)
-  // app.use(api, pccConfigurationsRoutes)
+  app.use(api, usersRoutes)
+  app.use(api, facilitiesRoutes)
+  app.use(api, pccConfigurationsRoutes)
 
   app.use(errorHandler)
 

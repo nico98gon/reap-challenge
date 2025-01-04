@@ -12,9 +12,9 @@ export default [
       },
     },
     rules: {
-      'indent': ['error', 2], // Indentación de 2 espacios
-      'semi': ['error', 'never'], // Sin punto y coma
-      'no-mixed-spaces-and-tabs': ['error', 'smart-tabs'], // Evita mezclar espacios y tabulaciones
+      'indent': ['error', 2],
+      'semi': ['error', 'never'],
+      'no-mixed-spaces-and-tabs': ['error', 'smart-tabs'],
     },
     plugins: {
       prettier: pluginObject
