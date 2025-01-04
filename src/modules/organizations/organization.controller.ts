@@ -6,7 +6,8 @@ import {
   getOrganizationsWithFacilitiesService,
   createOrganizationService,
   updateOrganizationService,
-  deleteOrganizationService, 
+  deleteOrganizationService,
+  getOrganizationByIdService, 
 } from "./organization.service"
 import {
   createOrganizationSchema,
@@ -33,6 +34,21 @@ export const getOrganizationsWithFacilities = async (req: Request, res: Response
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: "Error fetching organizations" })
+  }
+}
+
+export const getOrganizationById = async (req: Request, res: Response) => {
+  const { id } = req.params
+
+  try {
+    const organization = await getOrganizationByIdService(Number(id))
+    if (!organization) {
+      return res.status(404).json({ success: false, error: "Organization not found" })
+    }
+    res.json({ success: true, data: organization })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ success: false, error: "Error fetching organization by ID" })
   }
 }
 

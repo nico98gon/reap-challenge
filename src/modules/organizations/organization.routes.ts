@@ -1,11 +1,20 @@
 import { Router } from "express"
-import { createOrganization, deleteOrganization, getOrganizations, getOrganizationsWithFacilities, updateOrganization } from "./organization.controller"
+import {
+  createOrganization,
+  deleteOrganization,
+  getOrganizationById,
+  getOrganizations,
+  getOrganizationsWithFacilities,
+  updateOrganization
+} from "./organization.controller"
 
 
 const router = Router()
 
 router.get("/organizations", getOrganizations)
 router.get("/organizations-with-facilities", getOrganizationsWithFacilities)
+// @ts-ignore
+router.get("/organizations/:id", getOrganizationById)
 // @ts-ignore
 router.post("/organizations", createOrganization)
 // @ts-ignore

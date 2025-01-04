@@ -1,10 +1,12 @@
 import { Router } from "express"
-import { createUser, deleteUser, getUsers, updateUser } from "./user.controller"
+import { createUser, deleteUser, getUserById, getUsers, updateUser } from "./user.controller"
 
 
 const router = Router()
 
 router.get("/users", getUsers)
+// @ts-ignore
+router.get("/users/:id", getUserById)
 // @ts-ignore
 router.post("/user", createUser)
 // @ts-ignore

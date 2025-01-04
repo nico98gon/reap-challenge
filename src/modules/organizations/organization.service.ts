@@ -44,6 +44,27 @@ export const getOrganizationsWithFacilitiesService = async (page: number) => {
   }
 }
 
+export const getOrganizationByIdService = async (id: number) => {
+  const organization = await prisma.organization.findUnique({
+    where: { id },
+    include: {
+      facilities: true,
+      pccConfig: true,
+    },
+  })
+
+  if (!organization) {
+    return null
+  }
+
+  return {
+    id: organization.id,
+    name: organization.name,
+    facilities: organization.facilities,
+    pcc_org_id: organization.pccConfig?.pcc_org_id || null,
+    pcc_org_uuid: organization.pccConfig?.pcc_org_uuid || null,
+  }
+}
 
 export const createOrganizationService = async (
   validatedData: z.infer<typeof createOrganizationSchema>

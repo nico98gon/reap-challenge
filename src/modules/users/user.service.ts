@@ -27,6 +27,32 @@ export const getUsersService = async (page: number) => {
   }
 }
 
+export const getUserByIdService = async (id: number) => {
+  const user = await prisma.user.findUnique({
+    where: { id },
+    include: {
+      facilities: {
+        include: {
+          facility: true,
+        },
+      },
+    },
+  })
+
+  if (!user) {
+    return null
+  }
+
+  return {
+    id: user.id,
+    email: user.email,
+    facilities: user.facilities.map((relation) => ({
+      facilityId: relation.facility.id,
+      facilityName: relation.facility.name,
+    })),
+  }
+}
+
 export const createUserService = async (data: any) => {
   return await prisma.user.create({
     data: {

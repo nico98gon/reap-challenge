@@ -4,6 +4,7 @@ import { z } from "zod"
 import {
   createUserService,
   deleteUserService,
+  getUserByIdService,
   getUsersService,
   updateUserService
 } from "./user.service"
@@ -23,6 +24,21 @@ export const getUsers = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error fetching users:", error)
     res.status(500).json({ success: false, error: "Error fetching users" })
+  }
+}
+
+export const getUserById = async (req: Request, res: Response) => {
+  const { id } = req.params
+
+  try {
+    const user = await getUserByIdService(Number(id))
+    if (!user) {
+      return res.status(404).json({ success: false, error: "User not found" })
+    }
+    res.json({ success: true, data: user })
+  } catch (error) {
+    console.error("Error fetching user by ID:", error)
+    res.status(500).json({ success: false, error: "Error fetching user by ID" })
   }
 }
 
