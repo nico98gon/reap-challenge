@@ -142,7 +142,19 @@ export const updateOrganizationService = async (id: number, validatedData: any) 
 
 
 export const deleteOrganizationService = async (organizationId: number) => {
+  await prisma.userFacility.deleteMany({
+    where: {
+      facility: {
+        organizationId,
+      },
+    },
+  })
+
   await prisma.facility.deleteMany({
+    where: { organizationId },
+  })
+
+  await prisma.pccConfiguration.deleteMany({
     where: { organizationId },
   })
 

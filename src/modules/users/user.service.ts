@@ -90,7 +90,13 @@ export const updateUserService = async (id: number, data: { email?: string; faci
 }
 
 export const deleteUserService = async (id: number) => {
-  return await prisma.user.delete({
-    where: { id },
+  await prisma.$transaction(async (prisma) => {
+    await prisma.userFacility.deleteMany({
+      where: { userId: id },
+    })
+
+    await prisma.user.delete({
+      where: { id },
+    })
   })
 }

@@ -85,7 +85,7 @@ export const deleteUser = async (req: Request, res: Response) => {
   try {
     const id = idSchema.parse(Number(req.params.id))
     await deleteUserService(id)
-    res.status(204).send().json({ success: true })
+    res.status(204).send()
   } catch (error) {
     console.error("Error deleting user:", error)
     res.status(500).json({ success: false, error: "Error deleting user" })

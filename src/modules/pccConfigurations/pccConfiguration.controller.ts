@@ -73,7 +73,7 @@ export const deletePccOrganization = async (req: Request, res: Response) => {
 
   try {
     await deletePccOrganizationService(Number(id))
-    res.status(204).send().json({ success: true })
+    res.status(204).send()
   } catch (error) {
     console.error("Error deleting PCC organization:", error)
     res.status(500).json({ error: "Error deleting PCC organization" })

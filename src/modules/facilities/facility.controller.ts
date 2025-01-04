@@ -67,7 +67,7 @@ export const deleteFacility = async (req: Request, res: Response) => {
   try {
     const id = idSchema.parse(Number(req.params.id))
     await deleteFacilityService(id)
-    res.status(204).send().json({ success: true })
+    res.status(204).send()
   } catch (error) {
     console.error("Error deleting facility:", error)
     res.status(500).json({ success: false, error: "Error deleting facility" })

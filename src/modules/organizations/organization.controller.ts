@@ -107,7 +107,7 @@ export const deleteOrganization = async (req: Request, res: Response) => {
 
   try {
     await deleteOrganizationService(Number(id))
-    res.status(204).send().json({ success: true })
+    res.status(204).send()
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: "Error to delete organization" })
