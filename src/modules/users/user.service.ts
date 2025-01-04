@@ -1,7 +1,7 @@
 import prisma from "../../config/prismaClient"
 
 export const getUsersService = async (page: number) => {
-  const limit = 10
+  const limit = 9
   const offset = (page - 1) * limit
 
   const [users, totalUsers] = await Promise.all([

@@ -18,7 +18,7 @@ export const getOrganizations = async (req: Request, res: Response) => {
   const page = Number(req.query.page) || 1
   try {
     const organizations = await getOrganizationsService(Number(page))
-    res.json({ success: true, data: organizations })
+    res.json({ success: true, ...organizations })
   } catch (error) {
     res.status(500).json({ success: false, error: "Error fetching organizations" })
   }
@@ -28,8 +28,8 @@ export const getOrganizationsWithFacilities = async (req: Request, res: Response
   const page = Number(req.query.page) || 1
 
   try {
-    const result = await getOrganizationsWithFacilitiesService(page)
-    res.json(result)
+    const organizations = await getOrganizationsWithFacilitiesService(page)
+    res.json({ success: true, ...organizations })
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: "Error fetching organizations" })
@@ -42,7 +42,7 @@ export const createOrganization = async (req: Request, res: Response) => {
 
     const newOrganization = await createOrganizationService(validatedData)
 
-    res.status(201).json(newOrganization)
+    res.status(201).json({ success: true, ...newOrganization })
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
@@ -62,7 +62,7 @@ export const updateOrganization = async (req: Request, res: Response) => {
 
     const updatedOrganization = await updateOrganizationService(Number(id), validatedData)
 
-    res.json(updatedOrganization)
+    res.json({ success: true, ...updatedOrganization })
   } catch (error: any) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: "Validation error", details: error.errors })
@@ -91,7 +91,7 @@ export const deleteOrganization = async (req: Request, res: Response) => {
 
   try {
     await deleteOrganizationService(Number(id))
-    res.status(204).send()
+    res.status(204).send().json({ success: true })
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: "Error to delete organization" })

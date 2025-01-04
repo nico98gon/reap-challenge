@@ -1,14 +1,14 @@
 import { Router } from "express"
-import { createFacility, deleteFacility, getFacilities, updateFacility } from "../facilities/facility.controller"
+import { createUser, deleteUser, getUsers, updateUser } from "./user.controller"
 
 
 const router = Router()
 
-router.get("/users", getFacilities)
+router.get("/users", getUsers)
 // @ts-ignore
-router.post("/user", createFacility)
+router.post("/user", createUser)
 // @ts-ignore
-router.put("/user/:id", updateFacility)
-router.delete("/user/:id", deleteFacility)
+router.put("/user/:id", updateUser)
+router.delete("/user/:id", deleteUser)
 
 export default router

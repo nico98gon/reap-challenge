@@ -19,7 +19,7 @@ export const getUsers = async (req: Request, res: Response) => {
 
   try {
     const users = await getUsersService(page)
-    res.json({ success: true, data: users })
+    res.json({ success: true, ...users })
   } catch (error) {
     console.error("Error fetching users:", error)
     res.status(500).json({ success: false, error: "Error fetching users" })
@@ -31,7 +31,7 @@ export const createUser = async (req: Request, res: Response) => {
     const validatedData = createUserSchema.parse(req.body)
 
     const newUser = await createUserService(validatedData)
-    res.status(201).json({ success: true, data: newUser })
+    res.status(201).json({ success: true, ...newUser })
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
@@ -51,7 +51,7 @@ export const updateUser = async (req: Request, res: Response) => {
     const validatedData = updateUserSchema.parse(req.body)
 
     const updatedUser = await updateUserService(id, validatedData)
-    res.json({ success: true, data: updatedUser })
+    res.json({ success: true, ...updatedUser })
   } catch (error: any) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
@@ -69,7 +69,7 @@ export const deleteUser = async (req: Request, res: Response) => {
   try {
     const id = idSchema.parse(Number(req.params.id))
     await deleteUserService(id)
-    res.status(204).send()
+    res.status(204).send().json({ success: true })
   } catch (error) {
     console.error("Error deleting user:", error)
     res.status(500).json({ success: false, error: "Error deleting user" })

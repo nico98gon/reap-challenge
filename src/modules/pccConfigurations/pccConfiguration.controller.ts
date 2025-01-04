@@ -17,7 +17,7 @@ export const getPccOrganizations = async (req: Request, res: Response) => {
   const page = Number(req.query.page) || 1
   try {
     const pccOrganizations = await getPccOrganizationsService(page)
-    res.json({ success: true, data: pccOrganizations })
+    res.json({ success: true, ...pccOrganizations })
   } catch (error) {
     console.error("Error fetching PCC organizations:", error)
     res.status(500).json({ success: false, error: "Error fetching PCC organizations" })
@@ -29,7 +29,7 @@ export const createPccOrganization = async (req: Request, res: Response) => {
     const validatedData = createPccOrganizationSchema.parse(req.body)
 
     const newPccOrganization = await createPccOrganizationService(validatedData)
-    res.status(201).json(newPccOrganization)
+    res.status(201).json({ success: true, ...newPccOrganization })
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
@@ -49,7 +49,7 @@ export const updatePccOrganization = async (req: Request, res: Response) => {
 
     const updatedPccOrganization = await updatePccOrganizationService(id, validatedData)
 
-    res.json({ success: true, data: updatedPccOrganization })
+    res.json({ success: true, ...updatedPccOrganization })
   } catch (error: any) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
@@ -73,7 +73,7 @@ export const deletePccOrganization = async (req: Request, res: Response) => {
 
   try {
     await deletePccOrganizationService(Number(id))
-    res.status(204).send()
+    res.status(204).send().json({ success: true })
   } catch (error) {
     console.error("Error deleting PCC organization:", error)
     res.status(500).json({ error: "Error deleting PCC organization" })

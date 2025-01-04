@@ -6,14 +6,14 @@ import prisma from "../../config/prismaClient"
 
 
 export const getOrganizationsService = async (page: number) => {
-  const limit = 10
+  const limit = 9
   const offset = (page - 1) * limit
   const organizations = await prisma.organization.findMany({ skip: offset, take: limit })
   return organizations
 }
 
 export const getOrganizationsWithFacilitiesService = async (page: number) => {
-  const limit = 10
+  const limit = 9
   const offset = (page - 1) * limit
 
   const [organizations, totalOrganizations] = await Promise.all([

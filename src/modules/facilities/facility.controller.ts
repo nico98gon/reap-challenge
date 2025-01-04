@@ -17,7 +17,7 @@ export const getFacilities = async (req: Request, res: Response) => {
 
   try {
     const facilities = await getFacilitiesService(page)
-    res.json({ success: true, data: facilities })
+    res.json({ success: true, ...facilities })
   } catch (error) {
     console.error("Error fetching facilities:", error)
     res.status(500).json({ success: false, error: "Error fetching facilities" })
@@ -29,7 +29,7 @@ export const createFacility = async (req: Request, res: Response) => {
     const validatedData = createFacilitySchema.parse(req.body)
 
     const newFacility = await createFacilityService(validatedData)
-    res.status(201).json({ success: true, data: newFacility })
+    res.status(201).json({ success: true, ...newFacility })
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
@@ -49,7 +49,7 @@ export const updateFacility = async (req: Request, res: Response) => {
     const validatedData = updateFacilitySchema.parse(req.body)
 
     const updatedFacility = await updateFacilityService(id, validatedData)
-    res.json({ success: true, data: updatedFacility })
+    res.json({ success: true, ...updatedFacility })
   } catch (error: any) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
@@ -67,7 +67,7 @@ export const deleteFacility = async (req: Request, res: Response) => {
   try {
     const id = idSchema.parse(Number(req.params.id))
     await deleteFacilityService(id)
-    res.status(204).send()
+    res.status(204).send().json({ success: true })
   } catch (error) {
     console.error("Error deleting facility:", error)
     res.status(500).json({ success: false, error: "Error deleting facility" })
