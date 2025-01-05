@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-arm64-openssl-3.0.x"]
@@ -15,40 +9,39 @@ datasource db {
 }
 
 model Organization {
-  id         Int    @id @default(autoincrement())
-  name       String @unique
+  id         Int               @id @default(autoincrement())
+  name       String            @unique
   facilities Facility[]
   pccConfig  PccConfiguration?
 }
 
 model PccConfiguration {
-  id             Int    @id @default(autoincrement())
+  id             Int          @id @default(autoincrement())
   pcc_org_id     String
   pcc_org_uuid   String
-  organizationId Int    @unique
+  organizationId Int          @unique
   organization   Organization @relation(fields: [organizationId], references: [id])
 }
 
 model User {
-  id        Int    @id @default(autoincrement())
-  email     String @unique
+  id         Int            @id @default(autoincrement())
+  email      String         @unique
   facilities UserFacility[]
 }
 
 model Facility {
-  id             Int    @id @default(autoincrement())
-  name           String 
+  id             Int            @id @default(autoincrement())
   organizationId Int
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  name           String
+  organization   Organization   @relation(fields: [organizationId], references: [id])
   users          UserFacility[]
 }
 
 model UserFacility {
-  userId    Int
+  userId     Int
   facilityId Int
-  user      User      @relation(fields: [userId], references: [id])
-  facility  Facility  @relation(fields: [facilityId], references: [id])
+  facility   Facility @relation(fields: [facilityId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
 
   @@id([userId, facilityId])
 }
-
