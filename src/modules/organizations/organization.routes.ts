@@ -1,4 +1,5 @@
 import { Router } from "express"
+
 import {
   createOrganization,
   deleteOrganization,
@@ -7,18 +8,16 @@ import {
   getOrganizationsWithFacilities,
   updateOrganization
 } from "./organization.controller"
+import { asyncHandler } from "../../utils/asyncHandler"
 
 
 const router = Router()
 
-router.get("/organizations", getOrganizations)
-router.get("/organizations-with-facilities", getOrganizationsWithFacilities)
-// @ts-ignore
-router.get("/organizations/:id", getOrganizationById)
-// @ts-ignore
-router.post("/organizations", createOrganization)
-// @ts-ignore
-router.put("/organizations/:id", updateOrganization)
-router.delete("/organizations/:id", deleteOrganization)
+router.get("/organizations", asyncHandler(getOrganizations))
+router.get("/organizations-with-facilities", asyncHandler(getOrganizationsWithFacilities))
+router.get("/organizations/:id", asyncHandler(getOrganizationById))
+router.post("/organizations", asyncHandler(createOrganization))
+router.put("/organizations/:id", asyncHandler(updateOrganization))
+router.delete("/organizations/:id", asyncHandler(deleteOrganization))
 
 export default router

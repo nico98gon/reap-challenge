@@ -10,4 +10,4 @@ export const updateUserSchema = z.object({
   facilities: z.array(z.number().int().positive()).optional(),
 })
 
-export const idSchema = z.number().int().positive()
+export const idSchema = z.string().regex(/^\d+$/, "The ID must be a valid number")

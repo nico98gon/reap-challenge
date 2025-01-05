@@ -1,75 +1,81 @@
 import { Request, Response } from "express"
+import Boom from "@hapi/boom"
 import { z } from "zod"
 
-import { createFacilityService,
+import {
+  createFacilityService,
   deleteFacilityService,
   getFacilitiesService,
   updateFacilityService
 } from "./facility.service"
+
 import {
   createFacilitySchema,
   updateFacilitySchema,
-  idSchema,
+  idSchema
 } from "./facility.validation"
 
-export const getFacilities = async (req: Request, res: Response) => {
-  const page = Number(req.query.page) || 1
+import { apiResponse, apiError } from "../../utils/response.utils"
 
+export const getFacilities = async (req: Request, res: Response) => {
   try {
+    const page = Number(req.query.page) || 1
     const facilities = await getFacilitiesService(page)
-    res.json({ success: true, ...facilities })
+    return apiResponse(res, facilities)
   } catch (error) {
-    console.error("Error fetching facilities:", error)
-    res.status(500).json({ success: false, error: "Error fetching facilities" })
+    return apiError(res, Boom.internal("Error fetching facilities", { error }))
   }
 }
 
 export const createFacility = async (req: Request, res: Response) => {
   try {
     const validatedData = createFacilitySchema.parse(req.body)
-
     const newFacility = await createFacilityService(validatedData)
-    res.status(201).json({ success: true, ...newFacility })
+    return apiResponse(res, newFacility, true, 201)
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({
-        success: false,
-        error: "Validation error",
-        details: error.errors,
-      })
+      return apiError(res, Boom.badRequest("Validation error", { details: error.errors }))
     }
-    console.error("Error creating facility:", error)
-    res.status(500).json({ success: false, error: "Error creating facility" })
+    return apiError(res, Boom.internal("Error creating facility", { error }))
   }
 }
 
 export const updateFacility = async (req: Request, res: Response) => {
   try {
-    const id = idSchema.parse(Number(req.params.id))
+    const id = idSchema.parse(req.params.id)
     const validatedData = updateFacilitySchema.parse(req.body)
-
-    const updatedFacility = await updateFacilityService(id, validatedData)
-    res.json({ success: true, ...updatedFacility })
+    const updatedFacility = await updateFacilityService(Number(id), validatedData)
+    return apiResponse(res, updatedFacility)
   } catch (error: any) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({
-        success: false,
-        error: "Validation error",
-        details: error.errors,
-      })
+      return apiError(res, Boom.badRequest("Validation error", { details: error.errors }))
     }
-    console.error("Error updating facility:", error)
-    res.status(500).json({ success: false, error: "Error updating facility" })
+    if (error.message === "Facility not found" || error.code === "P2025") {
+      return apiError(res, Boom.notFound("Facility not found"))
+    }
+    if (error.code === "P2002") {
+      return apiError(res, Boom.conflict("Conflict: Duplicate field value violates unique constraint"))
+    }
+    return apiError(res, Boom.internal("Error updating facility", { error }))
   }
 }
 
 export const deleteFacility = async (req: Request, res: Response) => {
   try {
-    const id = idSchema.parse(Number(req.params.id))
-    await deleteFacilityService(id)
-    res.status(204).send()
+    const id = idSchema.parse(req.params.id)
+    await deleteFacilityService(Number(id))
+    return res.status(204).send()
   } catch (error) {
-    console.error("Error deleting facility:", error)
-    res.status(500).json({ success: false, error: "Error deleting facility" })
+    if (error instanceof Error && error.message === "Facility not found") {
+      return apiError(res, Boom.notFound("Facility not found"))
+    }
+
+    if (typeof error === "object" && error !== null && "code" in error) {
+      if ((error as any).code === "P2025") {
+        return apiError(res, Boom.notFound("Facility not found"))
+      }
+    }
+
+    return apiError(res, Boom.internal("Error deleting facility", { error }))
   }
 }

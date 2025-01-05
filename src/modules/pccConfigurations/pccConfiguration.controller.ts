@@ -1,81 +1,81 @@
 import { Request, Response } from "express"
+import Boom from "@hapi/boom"
 import { z } from "zod"
 
 import {
   getPccOrganizationsService,
   createPccOrganizationService,
   updatePccOrganizationService,
-  deletePccOrganizationService,
+  deletePccOrganizationService
 } from "./pccConfiguration.service"
+
 import {
   createPccOrganizationSchema,
   updatePccOrganizationSchema,
-  idSchema,
+  idSchema
 } from "./pccConfiguration.validation"
 
+import { apiResponse, apiError } from "../../utils/response.utils"
+
 export const getPccOrganizations = async (req: Request, res: Response) => {
-  const page = Number(req.query.page) || 1
   try {
+    const page = Number(req.query.page) || 1
     const pccOrganizations = await getPccOrganizationsService(page)
-    res.json({ success: true, ...pccOrganizations })
+    return apiResponse(res, pccOrganizations)
   } catch (error) {
-    console.error("Error fetching PCC organizations:", error)
-    res.status(500).json({ success: false, error: "Error fetching PCC organizations" })
+    return apiError(res, Boom.internal("Error fetching PCC organizations", { error }))
   }
 }
 
 export const createPccOrganization = async (req: Request, res: Response) => {
   try {
     const validatedData = createPccOrganizationSchema.parse(req.body)
-
     const newPccOrganization = await createPccOrganizationService(validatedData)
-    res.status(201).json({ success: true, ...newPccOrganization })
+    return apiResponse(res, newPccOrganization, true, 201)
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({
-        error: "Validation error",
-        details: error.errors,
-      })
+      return apiError(res, Boom.badRequest("Validation error", { details: error.errors }))
     }
-    console.error("Error creating PCC organization:", error)
-    res.status(500).json({ error: "Error creating PCC organization" })
+    return apiError(res, Boom.internal("Error creating PCC organization", { error }))
   }
 }
+
 export const updatePccOrganization = async (req: Request, res: Response) => {
   try {
-    const id = idSchema.parse(Number(req.params.id))
-
+    const id = idSchema.parse(req.params.id)
     const validatedData = updatePccOrganizationSchema.parse(req.body)
-
-    const updatedPccOrganization = await updatePccOrganizationService(id, validatedData)
-
-    res.json({ success: true, ...updatedPccOrganization })
+    const updatedPccOrganization = await updatePccOrganizationService(Number(id), validatedData)
+    return apiResponse(res, updatedPccOrganization)
   } catch (error: any) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({
-        success: false,
-        error: "Validation error",
-        details: error.errors,
-      })
+      return apiError(res, Boom.badRequest("Validation error", { details: error.errors }))
     }
-
-    console.error("Error updating PccOrganization:", error)
-    res.status(500).json({
-      success: false,
-      error: "Error updating PccOrganization",
-    })
+    if (error.message === "PCC organization not found" || error.code === "P2025") {
+      return apiError(res, Boom.notFound("PCC organization not found"))
+    }
+    if (error.code === "P2002") {
+      return apiError(res, Boom.conflict("Conflict: Duplicate field value violates unique constraint"))
+    }
+    return apiError(res, Boom.internal("Error updating PCC organization", { error }))
   }
 }
 
-
 export const deletePccOrganization = async (req: Request, res: Response) => {
-  const { id } = req.params
-
   try {
+    const id = idSchema.parse(req.params.id)
     await deletePccOrganizationService(Number(id))
-    res.status(204).send()
+    return res.status(204).send()
   } catch (error) {
-    console.error("Error deleting PCC organization:", error)
-    res.status(500).json({ error: "Error deleting PCC organization" })
+    if (error instanceof Error && error.message === "PCC organization not found") {
+      return apiError(res, Boom.notFound("PCC organization not found"))
+    }
+
+    if (typeof error === "object" && error !== null && "code" in error) {
+      if ((error as any).code === "P2025") {
+        return apiError(res, Boom.notFound("PCC organization not found"))
+      }
+    }
+
+    return apiError(res, Boom.internal("Error deleting PCC organization", { error }))
   }
 }
