@@ -12,7 +12,7 @@ const createApp = () => {
 
   const corsOptions = process.env.NODE_ENV === "production"
     ? {
-        origin: "https://yourdomain.com",
+        origin: process.env.ORIGIN,
         methods: "GET,POST,PUT,DELETE",
         allowedHeaders: "Content-Type",
       }

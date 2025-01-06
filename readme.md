@@ -50,6 +50,7 @@ The project includes:
 
     NODE_ENV=local # The environment for backend
     PORT=4000
+    ORIGIN= # frontend url hosting for production
 
     PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK=true # This allows running migrations in Docker
     
