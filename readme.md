@@ -46,8 +46,12 @@ The project includes:
     POSTGRES_USER=your_user 
     POSTGRES_PASSWORD=your_password
     DATABASE_URL="postgresql://<POSTGRES_USER>:<POSTGRES_PASSWORD>@postgres:5432/reap-challenge?schema=public"
+    ENABLE_POSTGRES=1 # 1 is yes and 0 is no
+
     NODE_ENV=local # The environment for backend
     PORT=4000
+    ORIGIN= # frontend url hosting for production
+
     PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK=true # This allows running migrations in Docker
     
 4. Create the database and run the migrations:

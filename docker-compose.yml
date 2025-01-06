@@ -10,6 +10,8 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/data/postgres
+    deploy:
+      replicas: ${ENABLE_POSTGRES}
 
   backend:
     build:
